@@ -1,0 +1,254 @@
+<html lang="en">
+<head>
+<meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+<link rel="icon" type="image/jpeg" href="./images/mealful.jpg">
+<title>Schedule</title>
+<style>
+    body { 
+        background: #FF416C;
+        background: -webkit-linear-gradient(to right, #FF4B2B, #FF416C);
+        background: linear-gradient(to right, #FF4B2B, #FF416C);
+    }
+    header{
+        background : black ;
+        color : white ;
+        padding : 0.5% ;
+        opacity :0.9 ;
+    }
+    header>h1 {
+        margin : 1% ;
+        text-decoration: underline;
+        text-decoration-color: #ffb22f;
+        font-family : Sans-serif  ;
+        font-weight : bold ;
+    }
+    .graph { 
+        display : flex ;
+        flex-wrap : wrap ;
+        }
+    .graph>canvas { 
+        width:40%;
+        max-width:45em ; 
+        border:2px solid black ;
+        margin : 2.5% ; 
+        box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+        -webkit-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+        -moz-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+        background: -webkit-linear-gradient(to right, #FFFFFF, #FFEFBA);
+        background: linear-gradient(to right, #FFFFFF, #FFEFBA);
+        }
+    button { 
+         padding : 0.5rem ;
+        border : 1px groove black ;
+        cursor : pointer ; 
+        }
+    .date { 
+        width:100% ;
+        height : 35%;
+        align-items : center ;
+        background: -webkit-linear-gradient(to right, #3a6073, #3a7bd5);
+        background: linear-gradient(to right, #3a6073, #3a7bd5);
+        color : white ;
+        display:flex;
+        flex-wrap : wrap ;
+        }
+    #schedule {
+        display : flex ;
+        
+         }
+    #schedule_time { 
+        flex : 33% ;
+        } 
+    #slot { 
+        flex : 33% ;
+        }   
+    #item_date { 
+        flex : 33% ;
+    } 
+</style>
+</head>
+<body>
+    <header>
+        <h1>mealFul.inc</h1>
+    </header>
+    <main>
+        <div class="date">
+            <label><h3>Select date for which order is scheduled : &nbsp</h3></label>
+            <input type="date" id="chkdate" style="cursor:pointer"> &nbsp<br></br><button onclick="chkschedule()"> Fetch Data</button> 
+            <hr style="border : 1px solid black ; height : 100% ; margin : 0 2% 0 2%" ></hr>
+            <span id="prior_schedule" style="flex:50% ;padding: 1.5%; font-weight:bold"><h3>Prior schedueling<h3> </span>
+        </div>
+        <div class="graph">
+            <canvas id="order_schedule_graph" >Order schedule Graph</canvas><br>
+            <script>
+                var txt = document.getElementById("order_schedule_graph").getContext("2d");
+                txt.font = "10px Arial";
+                txt.fillText("Graph for order scheduling date will be diplayed here.",10,50);
+            </script>
+            <canvas id="days_prior_graph" ></canvas>
+            <script>
+                var txt = document.getElementById("days_prior_graph").getContext("2d");
+                txt.font = "10px Arial";
+                txt.fillText("Graph for days Prior Order Scheduled will be diplayed here.",10,50);
+            </script>
+            <canvas id="time_graph" ></canvas>
+            <script>
+                var txt = document.getElementById("time_graph").getContext("2d");
+                txt.font = "10px Arial";
+                txt.fillText("Graph for time of day order was scheduled will be diplayed here.",10,50);
+            </script>
+        </div>
+    </br><hr></hr>
+        <div id="schedule">
+        <div id="schedule_time">Schedule Time</div>
+        <div id="slot" >Schedule Slot</div>
+        <div id="item_date" >Item date</div>
+        </div>
+
+<script>
+     //retreiving data from json file
+    var i=0,size=0,j=0;
+	const json_url = 'mealful.json';
+    let schedule_date= [],schedule_time= [],slot= [],item_date= [];
+     async function retreivedata() {
+	const response = await fetch(json_url);
+	const data =await response.json();
+    size = data.length;
+    while(i<data.length) {
+        schedule_date.push(String(data[i].schedule_time.split(" ")[0]));
+        schedule_time.push(String(data[i].schedule_time.split(" ")[1]));
+        slot.push(data[i].slot);
+        item_date.push(String(data[i].item_date));
+        //document.getElementById("schedule_time").innerHTML+= "</br>" +data[i].schedule_time;
+        //document.getElementById("slot").innerHTML+= "</br>"+data[i].slot;        
+        //document.getElementById("item_date").innerHTML+= "</br>" +data[i].item_date;
+        i++;
+    console.log(data[i]);   //print data in console
+     }
+   }
+retreivedata();             // calling function to retreive json data
+    //function checks scheduled details for specified date
+    function chkschedule() {    
+        var xvaluedate= [],xvaluetime= [],xvalueslot= [],yvalue= [],xvalue= [],xcount= [],ycount= [];
+        var chkdate=String(document.getElementById("chkdate").value);
+        while(j<size) {
+            if(chkdate==item_date[j]) {
+                xvaluedate.push(schedule_date[j]);
+                xvaluetime.push(schedule_time[j]);
+                xvalueslot.push(slot[j]);
+            }
+        j++;  
+        }
+        const count = {};
+        var k=0,index={};
+        for (var element of xvaluedate) {
+             if (count[element]) {
+            count[element] += 1;
+        } else {
+            count[element] = 1;
+            }
+        }
+        var counttime = {} , phase = [0,0,0,0,0];
+        for (var prop in count) {
+            xvalue.push(prop);
+            yvalue.push(count[prop]);
+            console.log(`count.${prop} = ${count[prop]}`);
+            for(var m=0;m<xvaluedate.length;m++) {
+                if(xvaluedate[m]==prop) {
+                    if(xvaluetime[m].split(":")[0]>=09 && xvaluetime[m].split(":")[0]<12 )
+                        phase[0]++ ;
+                    else if(xvaluetime[m].split(":")[0]>=12 && xvaluetime[m].split(":")[0]<15 )
+                        phase[1] +=1 ;
+                    else if(xvaluetime[m].split(":")[0]>=15 && xvaluetime[m].split(":")[0]<18 )
+                        phase[2] +=1 ;
+                    else if(xvaluetime[m].split(":")[0]>=18 && xvaluetime[m].split(":")[0]<21 )
+                        phase[3] +=1 ;
+                    else 
+                        phase[4] +=1;
+                    }
+                }
+            counttime[prop] =phase;
+            console.log(counttime[prop]);
+            phase = [0,0,0,0,0];
+        }
+
+        //Graph displays order scheduled at what time of day
+
+        var colors = ["red", "green","blue","orange","brown","yellow","grey","purple"];
+        for(const n in count) {
+            var graph = new Chart("time_graph", {
+            type: "bar",
+            data: {
+            //labels: ['Morning','Afternoon','Evening','Night','Late Night'],
+            labels: ['09:00AM to 12:00PM','12:00PM to 03:00PM','03:00PM to 06:00PM','06:00PM to 09:00PM','09:00PM to 09:00AM'],
+            datasets: [{
+            backgroundColor: colors,
+            data: counttime[n]
+                }]
+            },
+            options: {
+                legend: {display: false},
+                title: {
+                    display: true,
+                    text: " Order schedule at time of day"
+                    }
+                }
+            });
+        }
+
+        //Bar graph to show dates on which order was scheduled
+
+        new Chart("order_schedule_graph", {
+            type: "bar",
+            data: {
+                labels: xvalue,
+                datasets: [{
+                    backgroundColor: colors,
+                    data: yvalue
+                    }]
+                },
+            options: {
+                legend: {display: false},
+            title: {
+                display: true,
+                text: "Orders Scheduled for "+chkdate
+                }
+            }
+        });
+        var sum=0;
+        for(var l in yvalue) {
+            sum +=parseInt(yvalue[l]);
+            }
+        var xday= [],ypercentage= [];
+        for(var l in xvalue) {
+            var day=parseInt(chkdate.split("-")[2])-parseInt(xvalue[l].split("-")[2]);
+            var percentage=(parseInt(yvalue[l])*100)/55;
+            document.getElementById("prior_schedule").innerHTML+="</br> &nbsp"+parseInt(percentage)+" % of schedueling done "+day+" days prior.";
+            xday.push(day+" days");
+            ypercentage.push(parseInt(percentage));
+            }
+
+        // pie cart for no. of days prior order was scheduled
+
+        new Chart("days_prior_graph", {
+            type: "pie",
+            data: {
+                labels: xday,
+                datasets: [{
+                    backgroundColor: colors,
+                    data: ypercentage
+                }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: "Days Prior Order Scheduled"
+                    }
+                }
+            });
+        }
+</script>
+</body>
+</html>
