@@ -1,3 +1,6 @@
+<?PHP
+header('Access-Control-Allow-Origin: *');
+?>
 <html lang="en">
 <head>
 <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
