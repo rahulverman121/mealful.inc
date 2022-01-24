@@ -1,0 +1,90 @@
+<html>
+<head><title>Mutual Funds</title>
+<style>
+    body {
+        justify-content : center ;
+        align-items : center ;
+        background: -webkit-linear-gradient(to right, #FF4B2B, #FF416C);
+        background: linear-gradient(to right, #FF4B2B, #FF416C);
+    }
+    main {
+        
+        height : 30em ;
+        max-height : 30em ;
+        justify-content : center ;
+        align-item : center ;
+        background: -webkit-linear-gradient(to right, #3a6073, #3a7bd5);
+        background: linear-gradient(to right, #3a6073, #3a7bd5);
+        color : white ;
+        padding : 2% ;
+        opacity : 0.9;
+        font-size : 1.5em ;
+
+    }
+</style>
+<script>
+    var arr = [10000,5000,25000,15000,12000];
+    console.log(arr);
+    arr.sort(function(a, b) {
+    return a - b;
+    });
+    console.log(arr);
+    var sum=0,l=1;
+    function mutualfund() {
+        var invest = document.getElementById("invest").value;
+        console.log(invest);
+        for (var j=0;j<arr.length;j++)
+            sum+=arr[j];
+        console.log(sum);
+        if(invest>sum) {
+            document.getElementById("demoo").innerHTML+="Insufficient Balance!!!";
+            return 0;
+            }
+        else {
+            function find() {
+                for(var i=0;i<arr.length;i++) {
+                	if (invest==arr[i]) {
+		                arr[i]=0;
+		                invest=0 ;
+                        console.log(arr);
+		                break ;
+		            }	
+	                else if (invest<arr[i]) {
+		                arr[i]-=invest;
+		                invest=0;
+		                break;
+		            }
+                    else if(invest>arr[arr.length-l]) {
+                        console.log(arr);
+                        invest-=arr[arr.length-l]
+                        arr[arr.length-l]=0;
+                        l++;
+                        find();
+                    }
+	
+            }   
+        }
+        find()   
+        console.log(arr);
+    }
+        for (var k=0;k<arr.length;k++)
+            document.getElementById("demoo").innerHTML+="<br> Balance after Investment in Account "+(k+1)+" "+arr[k];
+    }
+</script>
+</head>
+<body>
+<main>
+    <label>Enter Amount to invest : </label>
+    <input type="text" id="invest" placeholder="Investment Amount">&nbsp
+    <input type="submit" onclick="mutualfund()" value="Invest Now"></br></br>
+    <div id="demoo"></div>
+    <script>
+        for (var k=0;k<arr.length;k++)
+            document.getElementById("demoo").innerHTML+="Balance in Account "+(k+1)+" "+arr[k]+"<br>";
+    </script></br></br></br>You can choose to invest your savings money in an mutual funds, based on the amount of investment your account balance should be adjusted using the below priority : </br></br>
+    1. Deduct from the account which match the exact amount.<br>
+    2. Deduct from the account which is greater than the invested amount.</br>
+    3. Deduct from multiple account if the invested amount is greater than the account. balance based on 1 and 2 as priority in a recursive manner).
+</main>
+</body>
+</html>
