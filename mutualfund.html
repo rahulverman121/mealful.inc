@@ -54,14 +54,16 @@
 		                invest=0;
 		                break;
 		            }
+                    if(arr[arr.length-l]==0) {
+                        l++;
+                    }
                     else if(invest>arr[arr.length-l]) {
                         console.log(arr);
                         invest-=arr[arr.length-l]
                         arr[arr.length-l]=0;
                         l++;
                         find();
-                    }
-	
+                    }   
             }   
         }
         find()   
